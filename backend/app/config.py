@@ -10,8 +10,8 @@ class Settings(BaseSettings):
     
     # Supabase
     SUPABASE_URL: str
-    SUPABASE_KEY: str
-    SUPABASE_SERVICE_KEY: str
+    SUPABASE_KEY: Optional[str] = None  # Not used by backend, kept for reference
+    SUPABASE_SERVICE_KEY: str  # Used for backend database operations (bypasses RLS)
     
     # OpenRouter (for all AI operations - Gemini Flash Lite + OpenAI embeddings)
     OPENROUTER_API_KEY: str
@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     API_V1_PREFIX: str = "/api/v1"
     
     class Config:
-        env_file = ".env"
+        env_file = [".env", "../.env"]  # Check current dir and parent dir
         case_sensitive = True
 
 

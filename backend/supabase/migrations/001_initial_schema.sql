@@ -1,9 +1,6 @@
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 -- Create my_products table
 CREATE TABLE my_products (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     sku TEXT,
     name TEXT NOT NULL,
     product_type TEXT NOT NULL,
@@ -16,7 +13,7 @@ CREATE TABLE my_products (
 
 -- Create competitor_listings table
 CREATE TABLE competitor_listings (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     my_product_id UUID NOT NULL REFERENCES my_products(id) ON DELETE CASCADE,
     url TEXT NOT NULL UNIQUE,
     retailer_name TEXT NOT NULL,
@@ -29,7 +26,7 @@ CREATE TABLE competitor_listings (
 
 -- Create price_history table
 CREATE TABLE price_history (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     listing_id UUID NOT NULL REFERENCES competitor_listings(id) ON DELETE CASCADE,
     data JSONB NOT NULL,
     recorded_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -37,7 +34,7 @@ CREATE TABLE price_history (
 
 -- Create product_templates table
 CREATE TABLE product_templates (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
     schema JSONB NOT NULL,
     is_system BOOLEAN DEFAULT FALSE,

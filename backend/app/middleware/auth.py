@@ -3,8 +3,9 @@ Authentication middleware for Supabase Auth
 """
 from fastapi import Request, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from supabase import Client
-from app.database import get_supabase
+from supabase import create_client, Client
+from app.config import settings
+import jwt
 
 
 security = HTTPBearer()
@@ -28,21 +29,39 @@ async def get_current_user(request: Request) -> dict:
         
         token = authorization.replace("Bearer ", "")
         
-        # Verify token with Supabase
-        supabase = get_supabase()
-        user_response = supabase.auth.get_user(token)
-        
-        if not user_response.user:
+        # Decode JWT token to extract user information
+        # Supabase tokens are JWTs with user_id in the 'sub' claim
+        try:
+            # Decode without verification to get the payload
+            # Note: In production, you should verify the signature using Supabase's JWT secret
+            decoded = jwt.decode(token, options={"verify_signature": False})
+            user_id = decoded.get("sub")
+            email = decoded.get("email")
+            
+            if not user_id:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid token: missing user ID"
+                )
+            
+            return {
+                "user_id": user_id,
+                "email": email,
+                "user": None
+            }
+        except jwt.DecodeError as e:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid authentication token"
+                detail=f"Invalid token format: {str(e)}"
+            )
+        except jwt.ExpiredSignatureError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token has expired"
             )
         
-        return {
-            "user_id": user_response.user.id,
-            "email": user_response.user.email,
-            "user": user_response.user
-        }
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

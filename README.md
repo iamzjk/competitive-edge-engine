@@ -40,7 +40,9 @@ OPENROUTER_API_KEY=your_openrouter_api_key
 ### Database Setup
 
 1. Create a new Supabase project
-2. Run the migration file: `supabase/migrations/001_initial_schema.sql`
+2. Run the migration files in order:
+   - `backend/supabase/migrations/001_initial_schema.sql`
+   - `backend/supabase/migrations/002_system_templates.sql` (optional)
 3. Enable Row Level Security (RLS) policies are included in the migration
 
 ### Running the Application
@@ -81,15 +83,15 @@ npm run dev
 │   │   ├── models/   # Pydantic models
 │   │   ├── services/ # Business logic
 │   │   └── main.py   # Application entry
+│   ├── supabase/
+│   │   └── migrations/   # Database migrations
 │   └── requirements.txt
-├── frontend/         # React frontend
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   └── lib/
-│   └── package.json
-└── supabase/
-    └── migrations/   # Database migrations
+└── frontend/         # React frontend
+    ├── src/
+    │   ├── components/
+    │   ├── pages/
+    │   └── lib/
+    └── package.json
 ```
 
 ## API Documentation
