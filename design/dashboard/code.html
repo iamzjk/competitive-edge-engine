@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html class="" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Inverter Generator Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#137fec",
+            "background-light": "#f6f7f8",
+            "background-dark": "#101922",
+          },
+          fontFamily: {
+            "display": ["Inter", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+    }
+    .group:hover .group-hover\:block {
+      display: block;
+    }
+  </style>
+</head>
+<body class="font-display bg-background-light">
+<div class="relative flex h-auto min-h-screen w-full flex-col">
+<div class="flex h-full flex-1">
+<aside class="group/sidebar relative z-10 hidden w-64 flex-shrink-0 flex-col border-r border-slate-200 bg-white p-2 transition-all duration-300 ease-in-out sm:flex">
+<div class="flex h-full flex-col justify-between">
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between overflow-hidden">
+<div class="flex items-center gap-3">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 flex-shrink-0" data-alt="Admin user avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA0LdODd835ulE3fDcpUjbmCJ6Wv-roOG8d0pVNedh2d9mpLwPHZMkBV38A8NcVk2-xY21A6D1YLfEvGC2UicAjyYTviZ0oCKi9eYXNU5ZIEJ6xv9YWQt2GzxhU7W6hREQmbk28OLh_n_CyqcnUDkybMrCYnWyecG5U5IAvLeq5X-7yaOq2o7HKszMal6MCHuFxKHj3GILXi0RBpJu4Zvsuthkp1S7AwEqN5H2rl8TfNhFWYsJ8UYblZui4OiJIMPMgVyPDEBxc_NY");'></div>
+<div class="flex flex-col whitespace-nowrap">
+<h1 class="text-slate-900 text-base font-medium leading-normal">Admin User</h1>
+<p class="text-slate-500 text-sm font-normal leading-normal">admin@seller.com</p>
+</div>
+</div>
+<button class="flex items-center justify-center rounded-lg h-10 w-10 flex-shrink-0 hover:bg-slate-100">
+<span class="material-symbols-outlined text-slate-500 text-2xl">menu_open</span>
+</button>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 rounded-lg bg-blue-50 px-3 py-2" href="#">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<p class="text-primary text-sm font-medium leading-normal whitespace-nowrap">Dashboard</p>
+</a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-100" href="#">
+<span class="material-symbols-outlined text-slate-500 text-2xl">travel_explore</span>
+<p class="text-slate-700 text-sm font-medium leading-normal whitespace-nowrap">Competitor Discovery</p>
+</a>
+</nav>
+</div>
+<div class="flex flex-col gap-4 overflow-hidden">
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+<span class="material-symbols-outlined text-xl">play_circle</span>
+<span class="truncate whitespace-nowrap">Run New Crawl</span>
+</button>
+<div class="flex flex-col gap-1">
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-100" href="#">
+<span class="material-symbols-outlined text-slate-500 text-2xl">settings</span>
+<p class="text-slate-700 text-sm font-medium leading-normal whitespace-nowrap">Settings</p>
+</a>
+</div>
+</div>
+</div>
+</aside>
+<main class="flex-1 overflow-y-auto p-8">
+<div class="mx-auto max-w-7xl">
+<div class="flex flex-wrap items-center justify-between gap-3">
+<div class="flex min-w-72 flex-col gap-2">
+<h1 class="text-slate-900 text-4xl font-black leading-tight tracking-[-0.033em]">Dashboard</h1>
+<p class="text-slate-500 text-base font-normal leading-normal">Last updated: 2 minutes ago</p>
+</div>
+</div>
+<div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+<div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-lg border border-slate-200 bg-white p-6">
+<p class="text-slate-700 text-base font-medium leading-normal">Price Drops</p>
+<p class="text-red-500 tracking-light text-3xl font-bold leading-tight">12</p>
+<p class="text-red-500 text-base font-medium leading-normal">-5.2%</p>
+</div>
+<div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-lg border border-slate-200 bg-white p-6">
+<p class="text-slate-700 text-base font-medium leading-normal">Spec Disadvantages</p>
+<p class="text-orange-400 tracking-light text-3xl font-bold leading-tight">8</p>
+<p class="text-orange-400 text-base font-medium leading-normal">+1.0%</p>
+</div>
+<div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-lg border border-slate-200 bg-white p-6">
+<p class="text-slate-700 text-base font-medium leading-normal">Price Increases</p>
+<p class="text-green-500 tracking-light text-3xl font-bold leading-tight">23</p>
+<p class="text-green-500 text-base font-medium leading-normal">+8.7%</p>
+</div>
+</div>
+<h2 class="text-slate-800 text-[22px] font-bold leading-tight tracking-[-0.015em] pt-8 pb-3">Generator Market Data</h2>
+<div class="w-full @container">
+<div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+<table class="w-full min-w-max text-left">
+<thead>
+<tr class="bg-slate-50">
+<th class="px-4 py-3 text-slate-600 text-sm font-medium leading-normal">Model Name</th>
+<th class="px-4 py-3 text-slate-600 text-sm font-medium leading-normal">Brand</th>
+<th class="px-4 py-3 text-slate-600 text-sm font-medium leading-normal">Retailer</th>
+<th class="px-4 py-3 text-slate-600 text-sm font-medium leading-normal">Price</th>
+<th class="px-4 py-3 text-slate-600 text-sm font-medium leading-normal">Wattage</th>
+<th class="px-4 py-3 text-slate-600 text-sm font-medium leading-normal">Dollar per Wattage</th>
+<th class="px-4 py-3 text-slate-600 text-sm font-medium leading-normal text-center">Price Change ($)</th>
+<th class="px-4 py-3 text-slate-600 text-sm font-medium leading-normal">Last Updated</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-t border-t-slate-200 bg-green-50">
+<td class="h-[72px] px-4 py-2 text-slate-800 text-sm font-normal leading-normal">Inverter Model X2000</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">GenMax</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">Amazon</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">$499.99</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">2000W</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">$0.25</td>
+<td class="h-[72px] px-4 py-2 text-sm font-normal leading-normal">
+<div class="flex items-center justify-center rounded-md bg-green-100 px-3 py-1.5 text-sm font-medium text-green-600">
+<span class="material-symbols-outlined text-base mr-1">arrow_upward</span>
+<span>+$20.00</span>
+</div>
+</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">2 mins ago</td>
+</tr>
+<tr class="border-t border-t-slate-200 bg-red-50">
+<td class="h-[72px] px-4 py-2 text-slate-800 text-sm font-normal leading-normal">QuietPower 3500i</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">PowerUp</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">Home Depot</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">$849.00</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">3500W</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">$0.24</td>
+<td class="h-[72px] px-4 py-2 text-sm font-normal leading-normal">
+<div class="flex items-center justify-center rounded-md bg-red-100 px-3 py-1.5 text-sm font-medium text-red-600">
+<span class="material-symbols-outlined text-base mr-1">arrow_downward</span>
+<span>-$15.50</span>
+</div>
+</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">2 mins ago</td>
+</tr>
+<tr class="border-t border-t-slate-200 bg-red-50">
+<td class="h-[72px] px-4 py-2 text-slate-800 text-sm font-normal leading-normal">EcoFlow Delta 2</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">EcoFlow</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">EcoFlow US</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">$999.00</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">1800W</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">$0.55</td>
+<td class="h-[72px] px-4 py-2 text-sm font-normal leading-normal">
+<div class="flex items-center justify-center rounded-md bg-red-100 px-3 py-1.5 text-sm font-medium text-red-600">
+<span class="material-symbols-outlined text-base mr-1">arrow_downward</span>
+<span>-$50.00</span>
+</div>
+</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">2 mins ago</td>
+</tr>
+<tr class="border-t border-t-slate-200 bg-green-50">
+<td class="h-[72px] px-4 py-2 text-slate-800 text-sm font-normal leading-normal">Champion 2500W</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">Champion</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">Amazon</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">$579.00</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">2500W</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">$0.23</td>
+<td class="h-[72px] px-4 py-2 text-sm font-normal leading-normal">
+<div class="flex items-center justify-center rounded-md bg-green-100 px-3 py-1.5 text-sm font-medium text-green-600">
+<span class="material-symbols-outlined text-base mr-1">arrow_upward</span>
+<span>+$10.00</span>
+</div>
+</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">2 mins ago</td>
+</tr>
+<tr class="border-t border-t-slate-200">
+<td class="h-[72px] px-4 py-2 text-slate-800 text-sm font-normal leading-normal">Predator 5000</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">Harbor Freight</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">Harbor Freight</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">$799.99</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">5000W</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">$0.16</td>
+<td class="h-[72px] px-4 py-2 text-sm font-normal leading-normal">
+<div class="flex items-center justify-center rounded-md bg-slate-200 px-3 py-1.5 text-sm font-medium text-slate-500">
+<span>$0.00</span>
+</div>
+</td>
+<td class="h-[72px] px-4 py-2 text-slate-500 text-sm font-normal leading-normal">2 mins ago</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+
+</body></html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Competitor Discovery Screen</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200">
+<div class="flex h-screen w-full relative overflow-hidden">
+<aside class="flex h-full w-20 flex-col items-center border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 py-4 z-10">
+<div class="flex flex-col items-center gap-y-4">
+<a class="flex items-center justify-center rounded-lg" href="#">
+<img alt="User avatar" class="rounded-full size-12" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2XtkOn5uvkTTM0-dXaKaLWohh-HQ6fu1lmx_4DUSzZS9oCSb5ANvOIiBbBJqqlUC9QDyOUqqVtRokWNHNSK2w5B-1r0224wyqNNBnIAYMwKWIdSTNcD8ngLpQmlNgwRiGTy4MhAI54ag8QSrXnWfoMm32DKnvOH017LKuS-TbrM2yct64_6IyFhWUh27GYvs8ieZP_uyJ5dxMaT2NICARPXCm-Y6Mc8VjdF7MMWnBDKKmh-rKEyDa1-toQjpZ8Oh7WZWpZ6T527o"/>
+</a>
+<nav class="flex flex-col gap-y-2">
+<a class="flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors size-12" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+</a>
+<a class="flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-primary dark:text-white transition-colors size-12" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">radar</span>
+</a>
+</nav>
+</div>
+<div class="mt-auto flex flex-col items-center gap-y-2">
+<button class="flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors size-12">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</aside>
+<div class="flex flex-1">
+<aside class="flex h-full w-96 flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50">
+<div class="p-4 border-b border-slate-200 dark:border-slate-800">
+<div class="flex justify-between items-center mb-4">
+<h2 class="text-lg font-semibold text-slate-900 dark:text-white">My Products</h2>
+<button class="flex items-center gap-2 bg-primary text-white text-sm font-semibold py-2 px-3 rounded-lg hover:bg-primary/90 transition-colors">
+<span class="material-symbols-outlined !text-xl" style="font-variation-settings: 'FILL' 1">add</span>
+<span>New</span>
+</button>
+</div>
+<label class="flex flex-col w-full">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-11">
+<div class="text-slate-400 dark:text-slate-500 flex bg-slate-100 dark:bg-slate-800 items-center justify-center pl-3 rounded-l-lg">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-900 dark:text-white focus:outline-0 focus:ring-0 border-none bg-slate-100 dark:bg-slate-800 focus:border-none h-full placeholder:text-slate-400 dark:placeholder:text-slate-500 px-4 rounded-l-none border-l-0 pl-2 text-sm font-normal leading-normal" placeholder="Search my products..." value=""/>
+</div>
+</label>
+</div>
+<div class="flex-grow overflow-y-auto p-2">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-4 bg-slate-100 dark:bg-slate-800/60 p-3 justify-between rounded-lg cursor-pointer">
+<div class="flex items-center gap-4 overflow-hidden">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-10 shrink-0" data-alt="Organic Cotton T-Shirt" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCQw_43Yvm6V1TilUae1iJk8BtEmeBPoKqWYeGUh-uDEQh-HqFp-V_q0XCMJwjl45ZKsN_gtBUgwXcrUmpiksrCsyOwhQ2p4rHHuTMgIshlyycKAREqGkQwSlDtnC-hfPsTfIf69T6C0CsYO45az9Ev6kd_bavt2M7grxMjrPOhFUnpRa0ProKIi0puC4dkLVqcxCLhnpaIU5zvavlnneM5ZzfabhYqVRxRdLPeaiqHUbTZ7i0BWpmah_I0TOArBjaf_QyLQbj0E2Y");'></div>
+<p class="text-slate-800 dark:text-slate-200 text-sm font-medium leading-normal flex-1 truncate">Organic Cotton T-Shirt</p>
+</div>
+</div>
+<div class="flex items-center gap-4 hover:bg-slate-100 dark:hover:bg-slate-800/60 p-3 justify-between rounded-lg cursor-pointer transition-colors">
+<div class="flex items-center gap-4 overflow-hidden">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-10 shrink-0" data-alt="Recycled Material Backpack" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBH_UjZ-1rvKgE7Ud6a6cx36e1MM84nRwmtZPYLY3C17Zz_HNGAOCq2zrhQi_3HkU-9QHKBiUx414SaWLgenUeOubc1iLfRIaLYL-IABJvpPL4dAUClOIsxXnw-H1YrzTWI55Xhd8q_TkP-yk3ouVQriIc_YZQCTYG6SjZ54Hihxi2Nql9VSZRN-pY9YA3HAf8i7f2mFJASGFLKaG4wZnMi8jx9RykSyUaoEXsnVgcIpaFKb6d5srFa_luqGlfG01j_RYwB40-NNxg");'></div>
+<p class="text-slate-800 dark:text-slate-200 text-sm font-medium leading-normal flex-1 truncate">Recycled Material Backpack</p>
+</div>
+</div>
+<div class="flex items-center gap-4 hover:bg-slate-100 dark:hover:bg-slate-800/60 p-3 justify-between rounded-lg cursor-pointer transition-colors">
+<div class="flex items-center gap-4 overflow-hidden">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-10 shrink-0" data-alt="Stainless Steel Water Bottle" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDlI_bosnPJa1I9T51x8u5Yb3Y4PjkCLcd3_3skiz8bfJkZCkbw2Q6XaFTOnmWjpjwGInidGHjrm7_Fwa-0q3ltvvigpwlzvh0SAH3BodmMJ0iAden4qjqXE6U9yS-gM0XfMtz0hxV6p-6c9EQDu1sN08giyXaq88Ohf5Bgs7ht_-Jac3ipEuLOvJfQacVZWfT1voAqnQsTWMgjIYJZluTbbgCxtGJU4cHdKfaubYB7JLfR2OYuJLCLdVX6WGLWQjq0f0NN6Lr1uFw");'></div>
+<p class="text-slate-800 dark:text-slate-200 text-sm font-medium leading-normal flex-1 truncate">Stainless Steel Water Bottle</p>
+</div>
+</div>
+<div class="flex items-center gap-4 hover:bg-slate-100 dark:hover:bg-slate-800/60 p-3 justify-between rounded-lg cursor-pointer transition-colors">
+<div class="flex items-center gap-4 overflow-hidden">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-10 shrink-0" data-alt="Bamboo Toothbrush Set" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCnC9v0D9270a73-dmd_u0C6g-c3H_0TWgmA52GiC8Ggs-lQFOjE-quidQTt0915czQd6b8sQi31wZej7lxvSwtJ23AajZbL2s4l8tanK3rRHrTVJVj-at558OgCLqS7W6E7qCg2qoT-FpUusLiZJM9c09y_8t7lAeqUkEVZ_hO0ER0V54jlC9nRV5E7-ob-gOx-SYf_1yB_sc5blUToABEa6tsB0jQdlPmeUN2pgvg0RP-o-SlXk3aOXTy3zLUN2KPXbGO65rAkwk");'></div>
+<p class="text-slate-800 dark:text-slate-200 text-sm font-medium leading-normal flex-1 truncate">Bamboo Toothbrush Set</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<main class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark">
+<div class="p-8">
+<header class="mb-8 flex justify-between items-start">
+<div>
+<h1 class="text-2xl font-bold text-slate-900 dark:text-white">Potential Matches for Organic Cotton T-Shirt</h1>
+<p class="text-slate-500 dark:text-slate-400 mt-1">AI has found 3 potential competitors for you to review.</p>
+</div>
+<button class="flex items-center gap-2 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-sm font-semibold py-2 px-4 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm">
+<span class="material-symbols-outlined !text-xl" style="font-variation-settings: 'FILL' 1">link</span>
+<span>Link Manually</span>
+</button>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+<div class="bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
+<div class="aspect-square w-full bg-cover bg-center" data-alt="Competitor's organic t-shirt" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDLbCmsJbqsrffE-7NUXkrZJ-wF4P82JvRX46y8cf2bUgUS0Ub5abV0MRKnHJaMJHtB8IsJ1IWRuP37TMRb07GUwObfidIDo7wO-JRDCNB7q6SVc5in2qM08THHoa970ccL3FWCTtnRzgLgaJAXMJMmWVT-3zBhKQq_TIFAHuXtMDDeB3FStHeoBcCMsp80I0V9wnsHhgen-TTpAlwlzRWxumHed3OKO32VaPWG9x7phR6B4_wFcy-pk725PPi8YKiIpSA3H4d1OfM')"></div>
+<div class="p-5 flex flex-col flex-grow">
+<div class="flex justify-between items-start mb-4">
+<div class="flex-1 pr-4">
+<div class="flex items-center gap-2 mb-1">
+<img alt="Retailer Logo" class="w-4 h-4 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxS1E0mWMCwUo6i1BCAY2JFQjdD1ru9fHB14xi1OEx8rUmwl_2Kyc2qkS8ZhEFytIw-9QEA3TtqLwsG6KJZFMABF-OpikuyT3c2KV6zzyD4oG0Yw6AejDyd8eKVrbHJGH4VVRyDmU2QpVePhz0to3gYonHAJH4n9OfD0ZC0jUOTeQUC6_gYjtCwId7ZTkZca4HQbZPJNJ-BDLfpNj0_AK4v59kkPWRqGy0c1G-ST420bJask6y_ltRW2Xf9Ud_JX5Mypnx0mGnqsQ"/>
+<span class="text-xs text-slate-500 dark:text-slate-400">Everlane</span>
+</div>
+<h3 class="font-semibold text-slate-800 dark:text-slate-200 leading-tight">Premium-Weight Crew</h3>
+<p class="text-slate-500 dark:text-slate-400 font-bold text-lg mt-1">$28.00</p>
+</div>
+<div class="relative size-16">
+<svg class="w-full h-full" viewBox="0 0 36 36">
+<path class="text-slate-200 dark:text-slate-700" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+<path class="text-green-500" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="92, 100" stroke-linecap="round" stroke-width="3" transform="rotate(90 18 18)"></path>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="font-bold text-base text-green-500">92%</span>
+</div>
+</div>
+</div>
+<div class="mt-auto pt-4 flex items-center gap-2">
+<button class="w-full bg-primary text-white text-sm font-semibold py-2.5 px-4 rounded-lg hover:bg-primary/90 transition-colors">Approve &amp; Monitor</button>
+<button class="p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400 !text-xl">more_horiz</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
+<div class="aspect-square w-full bg-cover bg-center" data-alt="Another competitor's cotton t-shirt" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAm-J9q5eWxbB8Doh_lEQBks0RdghmmlZeqLpREHp3gt1Pud3clh2rMxKdcw5FXXYQ-7QotiBWYOkY6nAuLIsZ2aRwo2Y0A3cmhJqv6dougCRPBjP-PyKHpQCiTXoIGvyktwTaf0oqzUW4b8uoD3MfGi9YYlWF1N8RHLxk6CGBPBZ-ti5vNcFgOVPV-2hW_9aQBn0LvMDz1DYnsgXHnuBsvdKpdALqT9QVgp-mddhcBvtQiFvOIPoexnZi2L52tCCk-jJgFcihzn_I')"></div>
+<div class="p-5 flex flex-col flex-grow">
+<div class="flex justify-between items-start mb-4">
+<div class="flex-1 pr-4">
+<div class="flex items-center gap-2 mb-1">
+<img alt="Retailer Logo" class="w-4 h-4 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxkl-F0kz_WGYqKADjQY_lqg61sYll_wh-BsShREMzLAkxd_-ds5Stm1Ay-I7wJrusxF5TQOh3F3KcoQqVAOxIl8JU1K7ewvRoF8rF5Nw1WCgdwWCun5B6_rlijTGu-Sj_DSUJ8vjczyCo6xOQ0D8ZFHDBSi1ghzqrLWhmp-wOO7bmK9qID770RVjOvkObwmVbH3Zs8qgFo-lnVDzRx3wh9bjUzEu0cvZbJ2NN0UUvzIyZRV9kQyNjYAxHRLLMAih5DPjgG4YTkPk"/>
+<span class="text-xs text-slate-500 dark:text-slate-400">ASOS DESIGN</span>
+</div>
+<h3 class="font-semibold text-slate-800 dark:text-slate-200 leading-tight">Relaxed T-shirt in White</h3>
+<p class="text-slate-500 dark:text-slate-400 font-bold text-lg mt-1">$22.50</p>
+</div>
+<div class="relative size-16">
+<svg class="w-full h-full" viewBox="0 0 36 36">
+<path class="text-slate-200 dark:text-slate-700" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+<path class="text-yellow-500" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="78, 100" stroke-linecap="round" stroke-width="3" transform="rotate(90 18 18)"></path>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="font-bold text-base text-yellow-500">78%</span>
+</div>
+</div>
+</div>
+<div class="mt-auto pt-4 flex items-center gap-2">
+<button class="w-full bg-primary text-white text-sm font-semibold py-2.5 px-4 rounded-lg hover:bg-primary/90 transition-colors">Approve &amp; Monitor</button>
+<button class="p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400 !text-xl">more_horiz</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
+<div class="aspect-square w-full bg-cover bg-center" data-alt="A plain white t-shirt from another brand" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCGdKa1ypmzGA5-n8eFD8M7HHYE1eWO7BksHRo90hL-pRLP2IMfEH1Q9ECCO2aJvvg2_Q-qvYJYacNYmX3bfj6I4VfTSjYnaQtQf9Rc31CC6tMO181tvCa0UI1RdmtSHT7-FofaG0o_poRSIf1RWZ_Qrp4NCzSTam6rRmW8ZVwNu0G4NUT_o3CdLRCK7wIpYA24A4Z5riS-3ESDyS9YAnikMpYkgCtW-P99YUaUfL4hGFa6VJl3jJihsJNY2oYph7OIS4uSfxpbvUM')"></div>
+<div class="p-5 flex flex-col flex-grow">
+<div class="flex justify-between items-start mb-4">
+<div class="flex-1 pr-4">
+<div class="flex items-center gap-2 mb-1">
+<img alt="Retailer Logo" class="w-4 h-4 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHYpDxD0qJFgrJxnMSU1HuyImlU0oq2zeJJa1e3qptsB8o89wA8HI95AHPbuTbrNjdr-ZhhICh_uYDsQDoWaKF48deuPxdiGUjccZiV3jIloSMCTKhz6f1wE-KxUujbhQhWy7WGwo3VcERhIcOmXUVI9TYXvLZAFjcEhp8xDw1htxg6azEfhZb1utuUNqRxUeuFXmfYA0FjFsIoZxAY1v83Pk1Z2FUSJYS5wNKR_JTodLkHgW35oUhu7CX8O5kaDJ2oF4SgrlVdjQ"/>
+<span class="text-xs text-slate-500 dark:text-slate-400">GAP</span>
+</div>
+<h3 class="font-semibold text-slate-800 dark:text-slate-200 leading-tight">Classic Crew T-Shirt</h3>
+<p class="text-slate-500 dark:text-slate-400 font-bold text-lg mt-1">$24.99</p>
+</div>
+<div class="relative size-16">
+<svg class="w-full h-full" viewBox="0 0 36 36">
+<path class="text-slate-200 dark:text-slate-700" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+<path class="text-yellow-500" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="71, 100" stroke-linecap="round" stroke-width="3" transform="rotate(90 18 18)"></path>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="font-bold text-base text-yellow-500">71%</span>
+</div>
+</div>
+</div>
+<div class="mt-auto pt-4 flex items-center gap-2">
+<button class="w-full bg-primary text-white text-sm font-semibold py-2.5 px-4 rounded-lg hover:bg-primary/90 transition-colors">Approve &amp; Monitor</button>
+<button class="p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400 !text-xl">more_horiz</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<div class="absolute inset-0 bg-black/30 z-20">
+<div class="absolute inset-y-0 right-0 w-full max-w-md bg-white dark:bg-slate-900/95 dark:border-l dark:border-slate-800 shadow-2xl flex flex-col backdrop-blur-sm">
+<div class="p-6 border-b border-slate-200 dark:border-slate-800">
+<div class="flex justify-between items-center">
+<h2 class="text-lg font-semibold text-slate-900 dark:text-white">Link Competitor Manually</h2>
+<button class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+</div>
+<div class="p-6 flex-1 overflow-y-auto">
+<form class="space-y-6">
+<div>
+<label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5" for="product-link">Select Your Product to Link To</label>
+<div class="relative">
+<select class="form-select w-full rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-primary focus:border-primary" id="product-link" name="product-link">
+<option>Organic Cotton T-Shirt</option>
+<option>Recycled Material Backpack</option>
+<option>Stainless Steel Water Bottle</option>
+<option>Bamboo Toothbrush Set</option>
+</select>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5" for="competitor-url">Competitor Product URL <span class="text-red-500">*</span></label>
+<input class="form-input w-full rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-primary focus:border-primary" id="competitor-url" name="competitor-url" placeholder="https://www.example.com/product-page" required="" type="url"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5" for="retailer-name">Retailer Name</label>
+<input class="form-input w-full rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-primary focus:border-primary" id="retailer-name" name="retailer-name" placeholder="e.g., Everlane" type="text"/>
+</div>
+</form>
+</div>
+<div class="p-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+<div class="flex justify-end gap-4">
+<button class="text-sm font-semibold py-2.5 px-4 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors">Cancel</button>
+<button class="bg-primary text-white text-sm font-semibold py-2.5 px-4 rounded-lg hover:bg-primary/90 transition-colors">Crawl and Add Listing</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>

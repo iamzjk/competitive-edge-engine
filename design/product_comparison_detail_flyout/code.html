@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Product Comparison Detail Flyout</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#137fec",
+            "background-light": "#f6f7f8",
+            "background-dark": "#101922",
+          },
+          fontFamily: {
+            "display": ["Inter", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+    }
+  </style>
+</head>
+<body class="font-display bg-gray-200 dark:bg-gray-800">
+<!-- This is a simulated background to demonstrate the flyout overlay -->
+<div class="absolute inset-0 z-0 bg-white dark:bg-gray-900 p-8">
+<div class="h-16 bg-gray-200 dark:bg-gray-700 rounded-lg w-full mb-4"></div>
+<div class="h-8 bg-gray-200 dark:bg-gray-700 rounded-lg w-1/2 mb-8"></div>
+<div class="grid grid-cols-3 gap-8">
+<div class="h-64 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+<div class="h-64 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+<div class="h-64 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+</div>
+</div>
+<!-- Flyout Starts Here -->
+<div class="relative flex min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<!-- Scrim -->
+<div class="fixed inset-0 bg-black/30 z-40"></div>
+<!-- Flyout Panel -->
+<div class="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg">
+<div class="flex h-full w-full flex-col bg-background-light dark:bg-background-dark shadow-2xl">
+<div class="flex h-full grow flex-col">
+<!-- Header -->
+<div class="flex justify-between items-center gap-2 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+<div class="flex flex-col">
+<h2 class="text-base font-bold text-gray-900 dark:text-gray-100 truncate">EcoFlow Delta Pro</h2>
+<p class="text-sm text-gray-500 dark:text-gray-400">Sold by Amazon</p>
+</div>
+<button class="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Body with Table -->
+<div class="flex-1 overflow-y-auto px-6 py-5">
+<div class="flex overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-background-light dark:bg-background-dark">
+<table class="w-full text-sm">
+<thead>
+<tr class="bg-gray-50 dark:bg-gray-800/50">
+<th class="px-4 py-3 text-left font-medium text-gray-800 dark:text-gray-200 w-[40%]">Metric</th>
+<th class="px-4 py-3 text-right font-medium text-gray-800 dark:text-gray-200 w-[30%]">Your Product</th>
+<th class="px-4 py-3 text-right font-medium text-gray-800 dark:text-gray-200 w-[30%]">Competitor</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+<tr>
+<td class="px-4 py-4 text-gray-600 dark:text-gray-400">Price</td>
+<td class="px-4 py-4 text-right text-gray-800 dark:text-gray-200">$999.00</td>
+<td class="px-4 py-4 text-right text-gray-800 dark:text-gray-200">
+<div class="flex items-center justify-end gap-1.5 text-green-600 dark:text-green-500">
+<span class="material-symbols-outlined text-base">check_circle</span>
+<span>$949.00</span>
+</div>
+</td>
+</tr>
+<tr>
+<td class="px-4 py-4 text-gray-600 dark:text-gray-400">Running Wattage</td>
+<td class="px-4 py-4 text-right text-gray-800 dark:text-gray-200">3600W</td>
+<td class="px-4 py-4 text-right text-gray-800 dark:text-gray-200">
+<div class="flex items-center justify-end gap-1.5 text-red-600 dark:text-red-500">
+<span class="material-symbols-outlined text-base">arrow_upward</span>
+<span>3800W</span>
+</div>
+</td>
+</tr>
+<tr>
+<td class="px-4 py-4 text-gray-600 dark:text-gray-400">Dry Weight</td>
+<td class="px-4 py-4 text-right text-gray-800 dark:text-gray-200">99 lbs</td>
+<td class="px-4 py-4 text-right text-gray-800 dark:text-gray-200">
+<div class="flex items-center justify-end gap-1.5 text-green-600 dark:text-green-500">
+<span class="material-symbols-outlined text-base">arrow_downward</span>
+<span>95 lbs</span>
+</div>
+</td>
+</tr>
+<tr>
+<td class="px-4 py-4 text-gray-600 dark:text-gray-400">Dimensions</td>
+<td class="px-4 py-4 text-right text-gray-800 dark:text-gray-200">25 x 11.2 x 16.4 in</td>
+<td class="px-4 py-4 text-right text-gray-800 dark:text-gray-200">24 x 12.1 x 15.9 in</td>
+</tr>
+<tr>
+<td class="px-4 py-4 text-gray-600 dark:text-gray-400">Dollar per Wattage</td>
+<td class="px-4 py-4 text-right text-gray-800 dark:text-gray-200">$0.27</td>
+<td class="px-4 py-4 text-right text-gray-800 dark:text-gray-200">
+<div class="flex items-center justify-end gap-1.5 text-green-600 dark:text-green-500">
+<span class="material-symbols-outlined text-base">check_circle</span>
+<span>$0.25</span>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Footer with CTA -->
+<div class="flex px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 flex-1 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+<span class="truncate">View Full Product Details</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>
