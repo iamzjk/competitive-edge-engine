@@ -5,12 +5,15 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 from uuid import UUID
 from pydantic import BaseModel
+import logging
 
 from app.middleware.auth import get_current_user
 from app.database import get_supabase
 from app.services.crawler import CrawlerService
 from app.services.ai_extractor import AIExtractorService
 from app.services.matcher import MatcherService
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/matches", tags=["matches"])
 
@@ -73,25 +76,57 @@ async def discover_competitors(
     candidates = []
     
     # Search each retailer
+    # Crawling strategy:
+    # - Depth 0: Crawl listing/search page (e.g., https://www.lowes.com/search?searchTerm=...)
+    # - Depth 1: Extract product URLs from listing page and crawl each product page
+    # - Max depth: 1 (only go 1 layer deep, don't follow links from product pages)
     for retailer in retailers:
         try:
-            # Search retailer
+            logger.info(f"Searching {retailer} for: {search_query}")
+            # Step 1: Crawl listing page (depth 0) and extract product URLs (depth 1)
             urls = await crawler.search_retailer(retailer, search_query, max_results=5)
+            logger.info(f"Found {len(urls)} product URLs from {retailer} listing page")
             
-            # Process each URL
+            if not urls:
+                logger.warning(f"No URLs found for {retailer}")
+                continue
+            
+            # Step 2: Crawl each product page (depth 1 - final depth, no further crawling)
             for url in urls:
                 try:
-                    # Crawl URL
-                    crawled_content = await crawler.crawl_url(url)
+                    logger.info(f"Crawling product page (depth 1): {url}")
+                    # Crawl product URL - crawler now automatically detects Amazon pages and uses better wait conditions
+                    crawled_content = await crawler.crawl_url(url, wait_for_content=False)
                     
+                    if not crawled_content.get("success"):
+                        logger.warning(f"Failed to crawl {url}: success=False")
+                        continue
+                    
+                    # Verify we got content
+                    content_text = crawled_content.get("text", crawled_content.get("html", ""))
+                    if not content_text or len(content_text.strip()) < 100:
+                        logger.warning(f"Insufficient content from {url}: content length={len(content_text)}")
+                        continue
+                    
+                    logger.info(f"Extracting data from {url} (content length: {len(content_text)} chars)")
                     # Extract data
                     extracted_data = await extractor.extract_from_content(crawled_content, schema)
                     
+                    # Verify we got a product name
+                    product_name = extracted_data.get("name")
+                    if not product_name or product_name.strip().lower() in ["unknown", "unknown product", "n/a", "null", ""]:
+                        logger.warning(f"Failed to extract product name from {url}. Extracted data keys: {list(extracted_data.keys())}")
+                        # Log a sample of the content for debugging
+                        content_sample = content_text[:500] if content_text else "No content"
+                        logger.debug(f"Content sample from {url}: {content_sample}")
+                        continue
+                    
+                    logger.info(f"Calculating confidence score for {url}")
                     # Calculate confidence score
                     scores = await matcher.calculate_confidence_score(
                         product["name"],
                         product["data"],
-                        extracted_data.get("name", "Unknown Product"),
+                        product_name,
                         extracted_data,
                         schema
                     )
@@ -99,21 +134,27 @@ async def discover_competitors(
                     candidates.append({
                         "url": url,
                         "retailer_name": retailer.capitalize(),
-                        "product_name": extracted_data.get("name", "Unknown Product"),
+                        "product_name": product_name,
                         "extracted_data": extracted_data,
                         "confidence_score": scores["confidence_score"],
                         "spec_similarity": scores["spec_similarity"],
-                        "semantic_similarity": scores["semantic_similarity"]
+                        "semantic_similarity": scores["semantic_similarity"],
+                        "schema": product["schema"]  # Include schema for frontend unit display
                     })
+                    logger.info(f"Added candidate from {retailer}: {product_name} (confidence: {scores['confidence_score']:.2f})")
                 except Exception as e:
-                    # Skip URLs that fail
+                    # Log URL failures but continue
+                    logger.error(f"Error processing URL {url}: {str(e)}", exc_info=True)
                     continue
         except Exception as e:
-            # Skip retailers that fail
+            # Log retailer failures but continue
+            logger.error(f"Error searching retailer {retailer}: {str(e)}", exc_info=True)
             continue
     
     # Sort by confidence score (highest first)
     candidates.sort(key=lambda x: x["confidence_score"], reverse=True)
+    
+    logger.info(f"Discovery complete. Found {len(candidates)} candidates total")
     
     # Return top candidates
     return candidates[:10]
@@ -145,16 +186,19 @@ async def approve_candidate(
     from app.services.schema_validator import SchemaValidator
     
     schema = ProductSchema(**product["schema"])
-    is_valid, errors = SchemaValidator.validate_data_against_schema(request.extracted_data, schema)
+    
+    # Normalize data first (handles unit conversions, type conversions, etc.)
+    # This ensures data is in the correct format before validation
+    normalized_data = SchemaValidator.normalize_data(request.extracted_data, schema)
+    
+    # Validate normalized data
+    is_valid, errors = SchemaValidator.validate_data_against_schema(normalized_data, schema)
     
     if not is_valid:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Extracted data validation failed: {', '.join(errors)}"
         )
-    
-    # Normalize data
-    normalized_data = SchemaValidator.normalize_data(request.extracted_data, schema)
     
     # Create competitor listing
     response = supabase.table("competitor_listings").insert({

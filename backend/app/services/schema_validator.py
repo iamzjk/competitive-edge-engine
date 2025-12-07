@@ -79,6 +79,20 @@ class SchemaValidator:
                 
                 elif field.type == "decimal":
                     if not isinstance(value, (int, float)):
+                        # Try to convert string to float (handles "1.6", "1.6 gallons", etc.)
+                        if isinstance(value, str):
+                            # Remove common units and non-numeric characters except decimal point
+                            cleaned_value = value.strip()
+                            # Try to extract number from strings like "1.6 gallons" or "1.6gal"
+                            import re
+                            number_match = re.search(r'(\d+\.?\d*)', cleaned_value)
+                            if number_match:
+                                try:
+                                    float(number_match.group(1))
+                                    # Value can be converted, skip error
+                                    continue
+                                except (ValueError, TypeError):
+                                    pass
                         try:
                             float(value)
                         except (ValueError, TypeError):
@@ -105,18 +119,53 @@ class SchemaValidator:
             if field.name in data:
                 value = data[field.name]
                 
+                # Handle dict values (e.g., {"value": 1.6, "unit": "gallons"})
+                if isinstance(value, dict) and "value" in value:
+                    value = value["value"]
+                
+                # Skip None values - they should remain None
+                if value is None:
+                    if field.required:
+                        normalized[field.name] = None
+                    # Skip optional None fields
+                    continue
+                
                 try:
                     if field.type == "integer":
-                        normalized[field.name] = int(value)
+                        if isinstance(value, str):
+                            # Extract integer from string
+                            import re
+                            number_match = re.search(r'(\d+)', value.strip())
+                            if number_match:
+                                normalized[field.name] = int(number_match.group(1))
+                            else:
+                                normalized[field.name] = int(value)
+                        else:
+                            normalized[field.name] = int(value)
                     elif field.type == "decimal":
-                        normalized[field.name] = float(value)
+                        # Handle string values that might contain units (e.g., "1.6 gallons")
+                        if isinstance(value, str):
+                            import re
+                            # Extract numeric value from string
+                            number_match = re.search(r'(\d+\.?\d*)', value.strip())
+                            if number_match:
+                                normalized[field.name] = float(number_match.group(1))
+                            else:
+                                normalized[field.name] = float(value)
+                        else:
+                            normalized[field.name] = float(value)
                     elif field.type == "boolean":
                         normalized[field.name] = bool(value)
                     elif field.type == "text":
                         normalized[field.name] = str(value)
-                except (ValueError, TypeError):
-                    # Keep original value if conversion fails
-                    normalized[field.name] = value
+                except (ValueError, TypeError) as e:
+                    # Log error but keep original value if conversion fails
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.warning(f"Could not normalize {field.name} value {value} to {field.type}: {e}")
+                    # Set to None for required fields, skip for optional
+                    if field.required:
+                        normalized[field.name] = None
             elif not field.required:
                 # Optional fields can be omitted
                 pass

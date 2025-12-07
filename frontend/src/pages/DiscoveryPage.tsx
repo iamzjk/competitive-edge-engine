@@ -9,6 +9,9 @@ import AddProductModal from '../components/discovery/AddProductModal'
 import ManualLinkFlyout from '../components/discovery/ManualLinkFlyout'
 import { Product } from '../types/schema'
 
+const CACHE_KEY = 'discovery_candidates_cache'
+const CACHE_VERSION = 'v1'
+
 export default function DiscoveryPage() {
   const navigate = useNavigate()
   const [products, setProducts] = useState<Product[]>([])
@@ -18,9 +21,68 @@ export default function DiscoveryPage() {
   const [showManualLink, setShowManualLink] = useState(false)
   const [loading, setLoading] = useState(true)
 
+  // Load cached candidates from sessionStorage
+  const loadCachedCandidates = (productId: string): any[] => {
+    try {
+      const cached = sessionStorage.getItem(CACHE_KEY)
+      if (cached) {
+        const cache = JSON.parse(cached)
+        
+        // Check cache version and clear if outdated
+        if (cache.version !== CACHE_VERSION) {
+          console.log('Cache version mismatch, clearing cache')
+          sessionStorage.removeItem(CACHE_KEY)
+          return []
+        }
+        
+        const data = cache.data?.[productId]
+        // Ensure we return an array
+        if (Array.isArray(data)) {
+          return data
+        }
+        console.warn('Cached data is not an array:', data)
+      }
+    } catch (error) {
+      console.error('Failed to load cached candidates:', error)
+      // Clear corrupted cache
+      sessionStorage.removeItem(CACHE_KEY)
+    }
+    return []
+  }
+
+  // Save candidates to sessionStorage
+  const saveCachedCandidates = (productId: string, candidates: any[]) => {
+    try {
+      const cached = sessionStorage.getItem(CACHE_KEY)
+      let cache = cached ? JSON.parse(cached) : { version: CACHE_VERSION, data: {} }
+      
+      // Ensure cache has correct structure
+      if (!cache.version || !cache.data) {
+        cache = { version: CACHE_VERSION, data: {} }
+      }
+      
+      cache.data[productId] = candidates
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify(cache))
+    } catch (error) {
+      console.error('Failed to save cached candidates:', error)
+      // Clear corrupted cache
+      sessionStorage.removeItem(CACHE_KEY)
+    }
+  }
+
   useEffect(() => {
     loadProducts()
   }, [])
+
+  // Load cached candidates when product selection changes
+  useEffect(() => {
+    if (selectedProduct) {
+      const cached = loadCachedCandidates(selectedProduct.id)
+      setCandidates(cached)
+    } else {
+      setCandidates([])
+    }
+  }, [selectedProduct])
 
   const loadProducts = async () => {
     try {
@@ -36,9 +98,31 @@ export default function DiscoveryPage() {
   const handleDiscover = async (productId: string) => {
     try {
       const response = await api.post(`/matches/discover/${productId}`)
-      setCandidates(response.data)
-    } catch (error) {
+      console.log('Discovery API response:', response.data)
+      
+      // Ensure we have an array
+      let discoveredCandidates = response.data
+      if (!Array.isArray(discoveredCandidates)) {
+        console.warn('API returned non-array data:', discoveredCandidates)
+        discoveredCandidates = []
+      }
+      
+      // Save to sessionStorage cache
+      saveCachedCandidates(productId, discoveredCandidates)
+      
+      // Update current candidates if this product is selected
+      if (selectedProduct?.id === productId) {
+        setCandidates(discoveredCandidates)
+      }
+      
+      if (discoveredCandidates.length === 0) {
+        alert('No matches found. This could be due to:\n- Search queries not returning results\n- Crawling failures\n- Extraction errors\n\nCheck the backend logs for more details.')
+      }
+    } catch (error: any) {
       console.error('Failed to discover competitors:', error)
+      const errorMessage = error?.response?.data?.detail || error?.message || 'Unknown error occurred'
+      alert(`Discovery failed: ${errorMessage}`)
+      throw error // Re-throw to let the component handle the error state
     }
   }
 
@@ -49,7 +133,7 @@ export default function DiscoveryPage() {
 
   return (
     <Layout onLogout={handleLogout}>
-      <div className="flex h-screen">
+      <div className="flex h-full">
         <ProductList
           products={products}
           selectedProduct={selectedProduct}
@@ -63,17 +147,22 @@ export default function DiscoveryPage() {
             <MatchCandidates
               product={selectedProduct}
               candidates={candidates}
-              onDiscover={() => handleDiscover(selectedProduct.id)}
+              onDiscover={async () => await handleDiscover(selectedProduct.id)}
               onApprove={async (candidate) => {
                 try {
                   await api.post('/matches/approve', {
                     product_id: selectedProduct.id,
-                    ...candidate
+                    url: candidate.url,
+                    retailer_name: candidate.retailer_name,
+                    product_name: candidate.product_name,
+                    extracted_data: candidate.extracted_data
                   })
                   alert('Competitor added to monitoring!')
                   loadProducts()
-                } catch (error) {
+                } catch (error: any) {
                   console.error('Failed to approve candidate:', error)
+                  const errorMessage = error?.response?.data?.detail || error?.message || 'Failed to approve candidate. Please try again.'
+                  alert(`Error: ${errorMessage}`)
                 }
               }}
               onManualLink={() => setShowManualLink(true)}

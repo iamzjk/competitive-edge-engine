@@ -31,7 +31,8 @@ export default function ManualLinkFlyout({ product, onClose, onSuccess }: Manual
         url,
         retailer_name: retailerName || 'Unknown',
         product_name: 'Extracted Product', // Will be updated after crawl
-        data: crawlResponse.data.extracted_data
+        data: crawlResponse.data.extracted_data,
+        image_url: crawlResponse.data.image_url || ''
       })
 
       onSuccess()

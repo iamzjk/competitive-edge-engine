@@ -1,7 +1,7 @@
 """
 Product models
 """
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, Dict, Any
 from datetime import datetime
 from uuid import UUID
@@ -11,10 +11,12 @@ from app.models.schema import ProductSchema
 
 class ProductBase(BaseModel):
     """Base product model"""
+    model_config = ConfigDict()
+    
     sku: Optional[str] = None
     name: str
     product_type: str = Field(..., description="Product type identifier")
-    schema: ProductSchema
+    schema: ProductSchema  # Note: shadows BaseModel.schema but required for API compatibility
     data: Dict[str, Any] = Field(..., description="Product data matching the schema")
 
 
@@ -25,10 +27,12 @@ class ProductCreate(ProductBase):
 
 class ProductUpdate(BaseModel):
     """Product update model"""
+    model_config = ConfigDict()
+    
     sku: Optional[str] = None
     name: Optional[str] = None
     product_type: Optional[str] = None
-    schema: Optional[ProductSchema] = None
+    schema: Optional[ProductSchema] = None  # Note: shadows BaseModel.schema but required for API compatibility
     data: Optional[Dict[str, Any]] = None
 
 
@@ -39,6 +43,5 @@ class Product(ProductBase):
     created_at: datetime
     updated_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 

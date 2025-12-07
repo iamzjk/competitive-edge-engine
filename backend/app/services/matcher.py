@@ -11,10 +11,15 @@ class MatcherService:
     """Service for matching products and calculating confidence scores"""
     
     def __init__(self):
-        # Use OpenRouter for all AI operations (Gemini Flash Lite + OpenAI embeddings)
+        # Validate API key is set
+        if not settings.OPENROUTER_API_KEY:
+            raise ValueError("OPENROUTER_API_KEY is not set in environment variables")
+        
+        # Use OpenRouter for all AI operations (Gemini 2.5 Flash Lite + OpenAI embeddings)
+        # According to OpenRouter docs: set base_url and api_key, pass optional headers in extra_headers
         self.openrouter_client = AsyncOpenAI(
-            api_key=settings.OPENROUTER_API_KEY,
-            base_url=settings.OPENROUTER_BASE_URL
+            base_url=settings.OPENROUTER_BASE_URL,
+            api_key=settings.OPENROUTER_API_KEY
         )
         # Embedding model via OpenRouter
         self.embedding_model = "openai/text-embedding-3-small"
@@ -128,7 +133,7 @@ class MatcherService:
             
             return normalized_similarity
         except Exception as e:
-            # Fallback: Use Gemini Flash Lite for text-based similarity if embeddings fail
+            # Fallback: Use Gemini 2.5 Flash Lite for text-based similarity if embeddings fail
             try:
                 prompt = f"""Rate the similarity between these two product names on a scale of 0.0 to 1.0, where 1.0 means they are the same product and 0.0 means completely different products.
 
@@ -138,7 +143,7 @@ Product 2: {candidate_product_name}
 Return only a number between 0.0 and 1.0, no explanation."""
                 
                 response = await self.openrouter_client.chat.completions.create(
-                    model="google/gemini-flash-1.5",
+                    model="google/gemini-2.5-flash-lite",
                     messages=[
                         {
                             "role": "user",

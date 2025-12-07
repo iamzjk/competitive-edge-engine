@@ -53,7 +53,7 @@ export default function Layout({ children, onLogout }: LayoutProps) {
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto bg-background-light">
+      <main className="flex-1 overflow-hidden bg-background-light">
         {children}
       </main>
     </div>

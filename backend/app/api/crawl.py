@@ -53,9 +53,14 @@ async def crawl_single(
     extractor = AIExtractorService()
     extracted_data = await extractor.extract_from_content(crawled_content, schema)
     
+    # Extract product image
+    html_content = crawled_content.get("html", "")
+    image_url = crawler.extract_product_image(html_content, request.url) if html_content else ""
+    
     return {
         "url": request.url,
-        "extracted_data": extracted_data
+        "extracted_data": extracted_data,
+        "image_url": image_url
     }
 
 
@@ -64,10 +69,16 @@ async def crawl_batch(current_user: dict = Depends(get_current_user)):
     """
     Batch crawl all competitor listings for the current user
     """
+    import logging
+    logger = logging.getLogger(__name__)
+
+    logger.info("Starting batch crawl")
     supabase = get_supabase()
     
     # Get all competitor listings
     listings_response = supabase.table("competitor_listings").select("*").eq("user_id", current_user["user_id"]).execute()
+
+    logger.info(f"Found {len(listings_response.data) if listings_response.data else 0} listings to crawl")
     
     if not listings_response.data:
         return {"message": "No listings to crawl", "crawled": 0}
@@ -97,11 +108,24 @@ async def crawl_batch(current_user: dict = Depends(get_current_user)):
             # Extract
             extracted_data = await extractor.extract_from_content(crawled_content, schema_obj)
             
+            # Extract product image
+            html_content = crawled_content.get("html", "")
+            image_url = crawler.extract_product_image(html_content, listing["url"]) if html_content else None
+            
+            # Log image extraction result
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.info(f"Extracted image URL for {listing['url']}: {image_url}")
+            
             # Update listing
-            supabase.table("competitor_listings").update({
+            update_data = {
                 "data": extracted_data,
                 "last_crawled_at": "now()"
-            }).eq("id", listing["id"]).execute()
+            }
+            if image_url:
+                update_data["image_url"] = image_url
+            
+            supabase.table("competitor_listings").update(update_data).eq("id", listing["id"]).execute()
             
             # Save to price history
             supabase.table("price_history").insert({
@@ -114,6 +138,7 @@ async def crawl_batch(current_user: dict = Depends(get_current_user)):
         except Exception as e:
             errors.append(f"Error crawling {listing['url']}: {str(e)}")
     
+    logger.info(f"Batch crawl completed: {crawled_count} listings crawled, {len(errors)} errors")
     return {
         "message": f"Crawled {crawled_count} listings",
         "crawled": crawled_count,

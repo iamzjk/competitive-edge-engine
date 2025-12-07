@@ -1,7 +1,7 @@
 """
 Product template models
 """
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 from datetime import datetime
 from uuid import UUID
@@ -11,8 +11,10 @@ from app.models.schema import ProductSchema
 
 class ProductTemplateBase(BaseModel):
     """Base template model"""
+    model_config = ConfigDict()
+    
     name: str
-    schema: ProductSchema
+    schema: ProductSchema  # Note: shadows BaseModel.schema but required for API compatibility
     is_system: bool = False
 
 

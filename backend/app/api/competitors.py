@@ -69,6 +69,7 @@ async def create_competitor_manual(
         "retailer_name": competitor.retailer_name,
         "product_name": competitor.product_name,
         "data": competitor.data,
+        "image_url": competitor.image_url,
         "user_id": current_user["user_id"]
     }).execute()
     

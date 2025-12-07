@@ -14,6 +14,7 @@ class CompetitorListingBase(BaseModel):
     retailer_name: str
     product_name: str
     data: Dict[str, Any] = Field(..., description="Competitor data matching product schema")
+    image_url: Optional[str] = None
 
 
 class CompetitorListingCreate(CompetitorListingBase):
@@ -26,6 +27,7 @@ class CompetitorListingUpdate(BaseModel):
     retailer_name: Optional[str] = None
     product_name: Optional[str] = None
     data: Optional[Dict[str, Any]] = None
+    image_url: Optional[str] = None
     last_crawled_at: Optional[datetime] = None
 
 
@@ -33,6 +35,7 @@ class CompetitorListing(CompetitorListingBase):
     """Competitor listing model with database fields"""
     id: UUID
     user_id: UUID
+    image_url: Optional[str] = None
     last_crawled_at: Optional[datetime] = None
     created_at: datetime
     

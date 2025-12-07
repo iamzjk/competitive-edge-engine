@@ -1,4 +1,5 @@
 import { Product } from '../../types/schema'
+import { getProxiedImageUrl } from '../../lib/format'
 
 interface ProductListProps {
   products: Product[]
@@ -39,22 +40,44 @@ export default function ProductList({
           </div>
         ) : (
           <div className="space-y-1">
-            {products.map((product) => (
-              <div
-                key={product.id}
-                onClick={() => onSelectProduct(product)}
-                className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                  selectedProduct?.id === product.id
-                    ? 'bg-slate-100'
-                    : 'hover:bg-slate-50'
-                }`}
-              >
-                <p className="text-sm font-medium text-slate-800">{product.name}</p>
-                {product.sku && (
-                  <p className="text-xs text-slate-500 mt-1">SKU: {product.sku}</p>
-                )}
-              </div>
-            ))}
+            {products.map((product) => {
+              // Get image URL from image_url field or from data.image_url or data.image
+              const imageUrl = (product as any).image_url || product.data?.image_url || product.data?.image
+              const proxiedImageUrl = getProxiedImageUrl(imageUrl)
+              
+              return (
+                <div
+                  key={product.id}
+                  onClick={() => onSelectProduct(product)}
+                  className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                    selectedProduct?.id === product.id
+                      ? 'bg-slate-100'
+                      : 'hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    {proxiedImageUrl && (
+                      <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 flex-shrink-0 flex items-center justify-center">
+                        <img
+                          src={proxiedImageUrl}
+                          alt={product.name}
+                          className="w-full h-full object-contain"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none'
+                          }}
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-slate-800 truncate">{product.name}</p>
+                      {product.sku && (
+                        <p className="text-xs text-slate-500 mt-1">SKU: {product.sku}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         )}
       </div>
