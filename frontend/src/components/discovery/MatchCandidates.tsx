@@ -2,12 +2,13 @@ import { useState } from 'react'
 import { Product } from '../../types/schema'
 import api from '../../lib/api'
 import { formatValueWithUnit, formatPrice, getProxiedImageUrl } from '../../lib/format'
+import DiscoveryConfigModal, { DiscoveryConfig } from './DiscoveryConfigModal'
 
 interface MatchCandidatesProps {
   product: Product
   candidates: any[]
   discoveredAt?: string
-  onDiscover: () => Promise<void>
+  onDiscover: (config: DiscoveryConfig) => Promise<void>
   onApprove: (candidate: any) => void
   onManualLink: () => void
 }
@@ -22,15 +23,22 @@ export default function MatchCandidates({
 }: MatchCandidatesProps) {
   const [discovering, setDiscovering] = useState(false)
   const [approvingUrls, setApprovingUrls] = useState<Set<string>>(new Set())
+  const [showConfigModal, setShowConfigModal] = useState(false)
 
   // Ensure candidates is always an array
   const safeCandidates = Array.isArray(candidates) ? candidates : []
 
-  const handleDiscover = async () => {
+  const handleDiscoverClick = () => {
+    console.log('Discover button clicked, opening modal')
+    setShowConfigModal(true)
+  }
+
+  const handleDiscoverConfirm = async (config: DiscoveryConfig) => {
+    setShowConfigModal(false)
     setDiscovering(true)
     try {
       // Call the parent's discover handler which makes the API call and updates state
-      await onDiscover()
+      await onDiscover(config)
     } catch (error) {
       console.error('Discovery failed:', error)
       // Error is already handled in parent component
@@ -78,7 +86,7 @@ export default function MatchCandidates({
         </div>
         <div className="flex gap-2">
           <button
-            onClick={handleDiscover}
+            onClick={handleDiscoverClick}
             disabled={discovering}
             className="flex items-center gap-2 bg-primary text-white text-sm font-semibold py-2 px-4 rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -242,6 +250,14 @@ export default function MatchCandidates({
             </div>
           ))}
         </div>
+      )}
+
+      {showConfigModal && (
+        <DiscoveryConfigModal
+          product={product}
+          onClose={() => setShowConfigModal(false)}
+          onConfirm={handleDiscoverConfirm}
+        />
       )}
     </div>
   )

@@ -7,6 +7,7 @@ import ProductList from '../components/discovery/ProductList'
 import MatchCandidates from '../components/discovery/MatchCandidates'
 import AddProductModal from '../components/discovery/AddProductModal'
 import ManualLinkFlyout from '../components/discovery/ManualLinkFlyout'
+import { DiscoveryConfig } from '../components/discovery/DiscoveryConfigModal'
 import { Product } from '../types/schema'
 
 const CACHE_KEY = 'discovery_candidates_cache'
@@ -95,9 +96,9 @@ export default function DiscoveryPage() {
     }
   }
 
-  const handleDiscover = async (productId: string) => {
+  const handleDiscover = async (productId: string, config: DiscoveryConfig) => {
     try {
-      const response = await api.post(`/matches/discover/${productId}`)
+      const response = await api.post(`/matches/discover/${productId}`, config)
       console.log('Discovery API response:', response.data)
       
       // Ensure we have an array
@@ -147,7 +148,7 @@ export default function DiscoveryPage() {
             <MatchCandidates
               product={selectedProduct}
               candidates={candidates}
-              onDiscover={async () => await handleDiscover(selectedProduct.id)}
+              onDiscover={async (config) => await handleDiscover(selectedProduct.id, config)}
               onApprove={async (candidate) => {
                 try {
                   await api.post('/matches/approve', {

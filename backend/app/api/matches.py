@@ -2,7 +2,7 @@
 Competitor discovery/match endpoints
 """
 from fastapi import APIRouter, Depends, HTTPException, status
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 from pydantic import BaseModel
 import logging
@@ -16,6 +16,13 @@ from app.services.matcher import MatcherService
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/matches", tags=["matches"])
+
+
+class DiscoveryRequest(BaseModel):
+    """Request parameters for discovery"""
+    search_query: Optional[str] = None
+    retailers: Optional[List[str]] = None
+    max_results: int = 5
 
 
 class MatchCandidate(BaseModel):
@@ -41,6 +48,7 @@ class ApproveCandidateRequest(BaseModel):
 @router.post("/discover/{product_id}", response_model=List[MatchCandidate])
 async def discover_competitors(
     product_id: UUID,
+    request: DiscoveryRequest = DiscoveryRequest(),
     current_user: dict = Depends(get_current_user)
 ):
     """
@@ -60,11 +68,17 @@ async def discover_competitors(
     
     product = product_response.data[0]
     
-    # Generate search queries from product name
-    search_query = product["name"]
+    # Use search query from request or default to product name
+    search_query = request.search_query if request.search_query else product["name"]
+    logger.info(f"Search query: {search_query}")
     
-    # List of retailers to search
-    retailers = ["amazon", "homedepot", "walmart", "lowes"]
+    # Use retailers from request or default to all
+    retailers = request.retailers if request.retailers else ["amazon", "homedepot", "walmart", "lowes"]
+    logger.info(f"Retailers: {retailers}")
+    
+    # Use max_results from request
+    max_results = request.max_results
+    logger.info(f"Max results per retailer: {max_results}")
     
     crawler = CrawlerService()
     extractor = AIExtractorService()
@@ -84,7 +98,7 @@ async def discover_competitors(
         try:
             logger.info(f"Searching {retailer} for: {search_query}")
             # Step 1: Crawl listing page (depth 0) and extract product URLs (depth 1)
-            urls = await crawler.search_retailer(retailer, search_query, max_results=5)
+            urls = await crawler.search_retailer(retailer, search_query, max_results=max_results)
             logger.info(f"Found {len(urls)} product URLs from {retailer} listing page")
             
             if not urls:
