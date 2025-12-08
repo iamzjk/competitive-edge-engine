@@ -66,8 +66,14 @@ class CrawlerService:
                 
                 # Extract internal links from crawl result
                 internal_links = []
-                if hasattr(result, 'links') and result.links:
-                    internal_links = result.links.get('internal', [])
+                if hasattr(result, 'links') and result.links is not None:
+                    if isinstance(result.links, dict):
+                        links_value = result.links.get('internal')
+                        internal_links = links_value if isinstance(links_value, list) else []
+                    else:
+                        # If links is not a dict, try to access it as an attribute
+                        links_value = getattr(result.links, 'internal', None)
+                        internal_links = links_value if isinstance(links_value, list) else []
                 
                 return {
                     "text": result.markdown or result.cleaned_html or "",
@@ -149,7 +155,12 @@ class CrawlerService:
             return []
         
         # Get internal links from crawl result
-        internal_links = content.get("links", {}).get("internal", [])
+        links_dict = content.get("links")
+        if not links_dict or not isinstance(links_dict, dict):
+            logger.warning(f"No links found in crawl result for search page: {search_url}")
+            return []
+        
+        internal_links = links_dict.get("internal", [])
         if not internal_links:
             logger.warning(f"No internal links found from search page: {search_url}")
             return []
