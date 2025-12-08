@@ -4,6 +4,7 @@ Amazon retailer-specific crawling logic
 import logging
 import json
 import re
+import urllib.parse
 from typing import List
 from bs4 import BeautifulSoup
 from crawl4ai import CrawlerRunConfig
@@ -55,80 +56,118 @@ class AmazonRetailer(BaseRetailer):
             logger.warning(f"Amazon product page may not have loaded correctly: {url}")
             return False
     
-    def extract_product_urls(self, html_content: str, base_url: str, max_results: int = 10) -> List[str]:
-        """Extract Amazon product URLs from HTML"""
-        soup = BeautifulSoup(html_content, 'html.parser')
-        urls = []
+    def filter_product_urls(self, urls: List, base_url: str, max_results: int = 10) -> List[str]:
+        """
+        Filter and normalize Amazon product URLs from a list of URLs or URL dictionaries
+        
+        Handles:
+        - Direct product links: /dp/[ASIN]/ in the path
+        - Indirect/sponsored links: /sspa/click URLs with url= parameter containing encoded product link
+        - Filters out non-product links: /deals, /b/ref=... without /dp/
+        """
         base_domain = "/".join(base_url.split("/")[:3])
         seen_urls = set()
+        product_urls = []
         
-        # Amazon: Look for /dp/ and /gp/product/ links
-        # Format: /Product-Name-Slug/dp/ASIN/ref=... (relative URLs from search pages)
-        # ASINs are 10 characters (alphanumeric)
-        for link in soup.find_all('a', href=True):
-            href = link.get('href', '').strip()
-            if not href:
+        def extract_asin_from_url(url_path: str) -> str:
+            """Extract ASIN from a URL path containing /dp/[ASIN]/"""
+            if '/dp/' not in url_path:
+                return None
+            parts = url_path.split('/dp/')
+            if len(parts) > 1:
+                asin = parts[1].split('/')[0].split('?')[0].split('#')[0]
+                # Validate ASIN is 10 characters (alphanumeric)
+                if asin and len(asin) == 10 and asin.isalnum():
+                    return asin
+            return None
+        
+        def is_non_product_link(href: str) -> bool:
+            """Check if URL is a non-product link (deals, category pages, etc.)"""
+            href_lower = href.lower()
+            # Filter out deals pages, category pages, etc. that don't have /dp/
+            if '/deals' in href_lower or '/b/ref=' in href_lower:
+                if '/dp/' not in href_lower:
+                    return True
+            return False
+        
+        def normalize_product_url(asin: str) -> str:
+            """Build clean product URL from ASIN"""
+            return f"{base_domain}/dp/{asin}"
+        
+        for url_item in urls:
+            # Extract href if it's a dictionary (from crawl4ai)
+            if isinstance(url_item, dict):
+                url = url_item.get('href', '')
+            elif isinstance(url_item, str):
+                url = url_item
+            else:
                 continue
             
-            # Handle relative URLs (common in search results)
-            if href.startswith('/') and ('/dp/' in href or '/gp/product/' in href):
-                if '/dp/' in href:
-                    # Extract ASIN from /Product-Name/dp/ASIN or /dp/ASIN
-                    parts = href.split('/dp/')
-                    if len(parts) > 1:
-                        asin = parts[1].split('/')[0].split('?')[0].split('#')[0]
-                        # Validate ASIN is 10 characters (alphanumeric)
-                        if asin and len(asin) == 10 and asin.isalnum():
-                            # Build clean URL: amazon.com/dp/ASIN
-                            url = f"{base_domain}/dp/{asin}"
-                            if url not in seen_urls:
-                                urls.append(url)
-                                seen_urls.add(url)
-                elif '/gp/product/' in href:
-                    # Extract product ID from /gp/product/ID
-                    parts = href.split('/gp/product/')
-                    if len(parts) > 1:
-                        product_id = parts[1].split('/')[0].split('?')[0].split('#')[0]
-                        if product_id:
-                            url = f"{base_domain}/gp/product/{product_id}"
-                            if url not in seen_urls:
-                                urls.append(url)
-                                seen_urls.add(url)
-            # Handle absolute URLs
-            elif href.startswith('http') and 'amazon.com' in href and ('/dp/' in href or '/gp/product/' in href):
-                if '/dp/' in href:
-                    parts = href.split('/dp/')
-                    if len(parts) > 1:
-                        asin = parts[1].split('/')[0].split('?')[0].split('#')[0]
-                        if asin and len(asin) == 10 and asin.isalnum():
-                            url = f"{base_domain}/dp/{asin}"
-                            if url not in seen_urls:
-                                urls.append(url)
-                                seen_urls.add(url)
-                elif '/gp/product/' in href:
-                    parts = href.split('/gp/product/')
-                    if len(parts) > 1:
-                        product_id = parts[1].split('/')[0].split('?')[0].split('#')[0]
-                        if product_id:
-                            url = f"{base_domain}/gp/product/{product_id}"
-                            if url not in seen_urls:
-                                urls.append(url)
-                                seen_urls.add(url)
+            if not url:
+                continue
+            
+            # Resolve relative URLs
+            if url.startswith('/'):
+                url = base_domain + url
+            elif not url.startswith('http'):
+                continue
+            
+            # Skip non-product links (deals, category pages without /dp/)
+            if is_non_product_link(url):
+                continue
+            
+            # Handle /sspa/click URLs (sponsored/indirect links)
+            if '/sspa/click' in url:
+                try:
+                    # Parse the URL to extract the url= parameter
+                    parsed = urllib.parse.urlparse(url)
+                    params = urllib.parse.parse_qs(parsed.query)
+                    
+                    # Look for url= parameter containing the product link
+                    if 'url' in params and params['url']:
+                        encoded_url = params['url'][0]
+                        # Decode the URL
+                        decoded_url = urllib.parse.unquote(encoded_url)
+                        
+                        # Check if decoded URL contains /dp/[ASIN]/
+                        if '/dp/' in decoded_url:
+                            asin = extract_asin_from_url(decoded_url)
+                            if asin:
+                                normalized_url = normalize_product_url(asin)
+                                if normalized_url not in seen_urls:
+                                    product_urls.append(normalized_url)
+                                    seen_urls.add(normalized_url)
+                                    if len(product_urls) >= max_results:
+                                        break
+                                    continue
+                except Exception as e:
+                    logger.debug(f"Error parsing /sspa/click URL: {e}")
+                    continue
+            
+            # Handle direct /dp/ URLs
+            if '/dp/' in url:
+                asin = extract_asin_from_url(url)
+                if asin:
+                    normalized_url = normalize_product_url(asin)
+                    if normalized_url not in seen_urls:
+                        product_urls.append(normalized_url)
+                        seen_urls.add(normalized_url)
+                        if len(product_urls) >= max_results:
+                            break
+            # Handle /gp/product/ URLs
+            elif '/gp/product/' in url:
+                parts = url.split('/gp/product/')
+                if len(parts) > 1:
+                    product_id = parts[1].split('/')[0].split('?')[0].split('#')[0]
+                    if product_id:
+                        normalized_url = f"{base_domain}/gp/product/{product_id}"
+                        if normalized_url not in seen_urls:
+                            product_urls.append(normalized_url)
+                            seen_urls.add(normalized_url)
+                            if len(product_urls) >= max_results:
+                                break
         
-        # Fallback to regex if BeautifulSoup found nothing
-        if not urls:
-            pattern = r'href=["\']([^"\']*/(?:dp|gp/product)/[A-Z0-9]{10}[^"\']*)'
-            matches = re.findall(pattern, html_content, re.IGNORECASE)
-            for match in matches:
-                if match.startswith('http'):
-                    url = match.split('?')[0].split('#')[0]
-                else:
-                    url = base_domain + match.split('?')[0].split('#')[0]
-                if url not in seen_urls:
-                    urls.append(url)
-                    seen_urls.add(url)
-        
-        return urls[:max_results]
+        return product_urls
     
     def extract_product_image(self, html_content: str, url: str) -> str:
         """Extract Amazon product image URL"""

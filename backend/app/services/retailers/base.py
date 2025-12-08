@@ -22,20 +22,65 @@ class BaseRetailer(ABC):
         """
         pass
     
-    @abstractmethod
-    def extract_product_urls(self, html_content: str, base_url: str, max_results: int = 10) -> List[str]:
+    def filter_product_urls(self, urls: List, base_url: str, max_results: int = 10) -> List[str]:
         """
-        Extract product URLs from HTML content
+        Filter and normalize product URLs from a list of URLs or URL dictionaries
         
         Args:
-            html_content: HTML content to parse
+            urls: List of URLs (strings) or URL dictionaries (from crawl4ai with 'href' key)
             base_url: Base URL to resolve relative URLs
             max_results: Maximum number of URLs to return
             
         Returns:
-            List of product URLs
+            List of filtered product URLs
         """
-        pass
+        # Default implementation: filter URLs that are product pages
+        product_urls = []
+        seen_urls = set()
+        base_domain = "/".join(base_url.split("/")[:3])
+        
+        for url_item in urls:
+            # Extract href if it's a dictionary (from crawl4ai)
+            if isinstance(url_item, dict):
+                url = url_item.get('href', '')
+            elif isinstance(url_item, str):
+                url = url_item
+            else:
+                continue
+            
+            if not url:
+                continue
+            
+            # Resolve relative URLs
+            if url.startswith('/'):
+                url = base_domain + url
+            elif not url.startswith('http'):
+                continue
+            
+            # Check if it's a product page
+            if self.is_product_page(url):
+                # Normalize URL (remove query params, fragments, etc.)
+                normalized = self._normalize_product_url(url)
+                if normalized and normalized not in seen_urls:
+                    product_urls.append(normalized)
+                    seen_urls.add(normalized)
+                    if len(product_urls) >= max_results:
+                        break
+        
+        return product_urls
+    
+    def _normalize_product_url(self, url: str) -> str:
+        """
+        Normalize a product URL to a clean format
+        
+        Args:
+            url: Product URL to normalize
+            
+        Returns:
+            Normalized product URL
+        """
+        # Default implementation: remove query params and fragments
+        return url.split('?')[0].split('#')[0]
     
     @abstractmethod
     def extract_product_image(self, html_content: str, url: str) -> str:

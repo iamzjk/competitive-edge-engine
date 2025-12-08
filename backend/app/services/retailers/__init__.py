@@ -45,10 +45,6 @@ def get_retailer_handler(retailer_name_or_url: str) -> Optional[BaseRetailer]:
 
 __all__ = [
     "BaseRetailer",
-    "AmazonRetailer",
-    "WalmartRetailer",
-    "HomeDepotRetailer",
-    "LowesRetailer",
     "get_retailer_handler",
 ]
 

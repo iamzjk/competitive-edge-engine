@@ -37,41 +37,35 @@ class WalmartRetailer(BaseRetailer):
                 page_timeout=30000
             )
     
-    def extract_product_urls(self, html_content: str, base_url: str, max_results: int = 10) -> List[str]:
-        """Extract Walmart product URLs from HTML"""
-        soup = BeautifulSoup(html_content, 'html.parser')
-        urls = []
+    def filter_product_urls(self, urls: List, base_url: str, max_results: int = 10) -> List[str]:
+        """Filter and normalize Walmart product URLs from a list of URLs"""
         base_domain = "/".join(base_url.split("/")[:3])
         seen_urls = set()
+        product_urls = []
         
-        # Walmart: Look for /ip/ links
-        # Format: /ip/Product-Name-Slug/ProductID?query-params (relative URLs)
-        # Also handles tracking URLs: /sp/track?...&rd=https%3A%2F%2Fwww.walmart.com%2Fip%2F...
-        for link in soup.find_all('a', href=True):
-            href = link.get('href', '').strip()
-            if not href:
+        for url_item in urls:
+            # Extract href if it's a dictionary (from crawl4ai)
+            if isinstance(url_item, dict):
+                url = url_item.get('href', '')
+            elif isinstance(url_item, str):
+                url = url_item
+            else:
                 continue
             
-            # Handle direct /ip/ links (relative or absolute)
-            if '/ip/' in href:
-                if href.startswith('/ip/'):
-                    # Relative URL: /ip/Product-Name/ID
-                    url = base_domain + href.split('?')[0].split('#')[0]
-                    if url not in seen_urls and '/ip/' in url:
-                        urls.append(url)
-                        seen_urls.add(url)
-                elif 'walmart.com/ip/' in href:
-                    # Absolute URL, remove query params and fragments
-                    url = href.split('?')[0].split('#')[0]
-                    if url not in seen_urls:
-                        urls.append(url)
-                        seen_urls.add(url)
+            if not url:
+                continue
+            
+            # Resolve relative URLs
+            if url.startswith('/'):
+                url = base_domain + url
+            elif not url.startswith('http'):
+                continue
             
             # Handle tracking URLs that contain product URLs in the 'rd' parameter
-            elif '/sp/track' in href and 'rd=' in href:
+            if '/sp/track' in url and 'rd=' in url:
                 try:
                     # Parse the tracking URL
-                    parsed = urllib.parse.urlparse(href)
+                    parsed = urllib.parse.urlparse(url)
                     params = urllib.parse.parse_qs(parsed.query)
                     if 'rd' in params and params['rd']:
                         # Extract the redirect URL (URL encoded)
@@ -83,26 +77,25 @@ class WalmartRetailer(BaseRetailer):
                             # Extract clean product URL
                             product_url = decoded_url.split('?')[0].split('#')[0]
                             if product_url not in seen_urls:
-                                urls.append(product_url)
+                                product_urls.append(product_url)
                                 seen_urls.add(product_url)
+                                if len(product_urls) >= max_results:
+                                    break
+                            continue
                 except Exception as e:
                     logger.debug(f"Error parsing Walmart tracking URL: {e}")
                     continue
+            
+            # Handle direct /ip/ URLs
+            if '/ip/' in url and 'walmart.com' in url:
+                normalized_url = url.split('?')[0].split('#')[0]
+                if normalized_url not in seen_urls:
+                    product_urls.append(normalized_url)
+                    seen_urls.add(normalized_url)
+                    if len(product_urls) >= max_results:
+                        break
         
-        # Fallback to regex if BeautifulSoup found nothing
-        if not urls:
-            pattern = r'href=["\']([^"\']*/ip/[^"\']*)'
-            matches = re.findall(pattern, html_content, re.IGNORECASE)
-            for match in matches:
-                if match.startswith('http'):
-                    url = match.split('?')[0].split('#')[0]
-                else:
-                    url = base_domain + match.split('?')[0].split('#')[0]
-                if url not in seen_urls:
-                    urls.append(url)
-                    seen_urls.add(url)
-        
-        return urls[:max_results]
+        return product_urls
     
     def extract_product_image(self, html_content: str, url: str) -> str:
         """Extract Walmart product image URL"""

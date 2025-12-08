@@ -2,7 +2,7 @@
 Crawler service using crawl4ai
 """
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig
 from app.config import settings
 from app.services.retailers import get_retailer_handler
@@ -64,11 +64,19 @@ class CrawlerService:
                     if retailer.is_product_page(url):
                         retailer.verify_product_content(html, url)
                 
+                # Extract internal links from crawl result
+                internal_links = []
+                if hasattr(result, 'links') and result.links:
+                    internal_links = result.links.get('internal', [])
+                
                 return {
                     "text": result.markdown or result.cleaned_html or "",
                     "html": result.html or "",
                     "url": url,
-                    "success": result.success
+                    "success": result.success,
+                    "links": {
+                        "internal": internal_links
+                    }
                 }
         except Exception as e:
             # Handle browser closure and other errors gracefully
@@ -82,74 +90,11 @@ class CrawlerService:
                 "text": "",
                 "html": "",
                 "url": url,
-                "success": False
+                "success": False,
+                "links": {
+                    "internal": []
+                }
             }
-    
-    async def crawl_with_depth(
-        self, 
-        start_url: str, 
-        max_depth: int = 1, 
-        current_depth: int = 0,
-        max_results_per_depth: int = 10
-    ) -> Dict[str, Any]:
-        """
-        Crawl a URL with depth control - crawls the page and optionally follows links
-        
-        Args:
-            start_url: Starting URL to crawl
-            max_depth: Maximum depth to crawl (0 = only start_url, 1 = start_url + 1 layer deep)
-            current_depth: Current depth (used internally for recursion)
-            max_results_per_depth: Maximum URLs to extract at each depth level
-            
-        Returns:
-            Dictionary with:
-            - 'content': Crawled content of the start_url
-            - 'links': List of URLs found at depth 1 (if max_depth >= 1)
-        """
-        logger.info(f"Crawling depth {current_depth}: {start_url}")
-        
-        # Crawl the current URL
-        content = await self.crawl_url(start_url, wait_for_content=(current_depth == 0))
-        
-        result = {
-            "content": content,
-            "links": [],
-            "depth": current_depth
-        }
-        
-        # If we haven't reached max depth, extract links and optionally crawl them
-        if current_depth < max_depth and content.get("success"):
-            html_content = content.get("html", "")
-            if html_content:
-                # Extract product URLs from the page using retailer handler
-                links = self._extract_product_urls(html_content, start_url, max_results_per_depth)
-                result["links"] = links
-                logger.info(f"Found {len(links)} links at depth {current_depth}")
-        
-        return result
-    
-    def _extract_product_urls(self, html_content: str, base_url: str, max_results: int = 10) -> List[str]:
-        """
-        Extract product URLs from HTML content based on the retailer domain
-        
-        Args:
-            html_content: HTML content to parse
-            base_url: Base URL to resolve relative URLs
-            max_results: Maximum number of URLs to return
-            
-        Returns:
-            List of product URLs
-        """
-        # Get retailer handler for this URL
-        retailer = get_retailer_handler(base_url)
-        
-        if retailer:
-            # Use retailer-specific extraction logic
-            return retailer.extract_product_urls(html_content, base_url, max_results)
-        
-        # Fallback: return empty list for unknown retailers
-        logger.warning(f"No retailer handler found for {base_url}")
-        return []
     
     def extract_product_image(self, html_content: str, url: str) -> str:
         """
@@ -195,18 +140,25 @@ class CrawlerService:
         # Build search URL using retailer handler
         search_url = retailer_handler.build_search_url(query)
         
-        # Use the new depth-based crawling method
-        # max_depth=1 means: crawl listing page (depth 0) and extract links (depth 1)
-        result = await self.crawl_with_depth(
-            start_url=search_url,
-            max_depth=1,  # Only go 1 layer deep (listing page + product links)
-            current_depth=0,
-            max_results_per_depth=max_results
-        )
+        # Crawl the search page
+        logger.info(f"Crawling search page: {search_url}")
+        content = await self.crawl_url(search_url, wait_for_content=True)
         
-        # Return the links found at depth 1
-        urls = result.get("links", [])
-        logger.info(f"Extracted {len(urls)} URLs from {retailer} listing page")
+        if not content.get("success"):
+            logger.warning(f"Failed to crawl search page: {search_url}")
+            return []
+        
+        # Get internal links from crawl result
+        internal_links = content.get("links", {}).get("internal", [])
+        if not internal_links:
+            logger.warning(f"No internal links found from search page: {search_url}")
+            return []
+        
+        logger.info(f"Found {len(internal_links)} internal links from {retailer} search page")
+        
+        # Filter product URLs from internal links using retailer handler
+        urls = retailer_handler.filter_product_urls(internal_links, search_url, max_results)
+        logger.info(f"Filtered to {len(urls)} product URLs from {retailer} listing page")
         if urls:
             logger.debug(f"Sample URLs: {urls[:3]}")
         
