@@ -2,3 +2,4 @@
 ALTER TABLE competitor_listings ADD COLUMN image_url TEXT;
 
 
+
